@@ -1,0 +1,65 @@
+﻿@page "/movie/{imdbID}"
+@using Movieapp.Models
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<h3>Movie Details</h3>
+
+@if (IsLoading)
+{
+    <p>Loading...</p>
+}
+else if (ErrorMessage != null)
+{
+    <p style="color:red">@ErrorMessage</p>
+}
+else if (Movie != null)
+{
+    <div>
+        <h2>@Movie.Title (@Movie.Year)</h2>
+        <img src="@Movie.Poster" alt="@Movie.Title" width="200" />
+        <p><strong>Genre:</strong> @Movie.Genre</p>
+        <p><strong>Director:</strong> @Movie.Director</p>
+        <p><strong>Actors:</strong> @Movie.Actors</p>
+        <p><strong>Plot:</strong> @Movie.Plot</p>
+        <p><strong>IMDb Rating:</strong> @Movie.imdbRating</p>
+        <button @onclick="GoBack">Back</button>
+    </div>
+}
+
+@code {
+    [Parameter] public string imdbID { get; set; } = "";
+
+    private MovieDetails? Movie;
+    private bool IsLoading = true;
+    private string? ErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            string apiKey = "c87d23ca"; // Your OMDb API key
+            string url = $"https://www.omdbapi.com/?apikey={apiKey}&i={imdbID}&plot=full";
+
+            Movie = await Http.GetFromJsonAsync<MovieDetails>(url);
+
+            if (Movie?.Response == "False")
+            {
+                ErrorMessage = Movie?.Error ?? "Movie not found.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "Error fetching movie details.";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/movies");
+    }
+}
