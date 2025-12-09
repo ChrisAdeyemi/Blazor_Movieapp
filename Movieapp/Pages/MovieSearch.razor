@@ -5,11 +5,19 @@
 
 
 <div class="search-container">
+    <div class="filter-container">
+        <select @bind="SelectedType" class="filter-select">
+            <option value="">All</option>
+            <option value="movie">Movies</option>
+            <option value="series">TV Shows</option>
+        </select>
+    </div>
     <div class="search-box">
         <input @bind="SearchText" placeholder="Search movies..." class="search-input" />
     </div>
     <button @onclick="SearchMovies" class="search-button">Search</button>
 </div>
+
 
 
 @if (IsLoading)
@@ -39,6 +47,7 @@
 }
 
 @code {
+    private string SelectedType = "";
     private string SearchText = "";
     private bool IsLoading = false;
     private string? ErrorMessage;
@@ -93,31 +102,34 @@
         IsLoading = true;
 
         try
-{
-    using var http = new HttpClient();
-    string apiKey = "c87d23ca";
-    string url = $"https://www.omdbapi.com/?apikey={apiKey}&s={SearchText}";
+        {
+            using var http = new HttpClient();
+            string apiKey = "c87d23ca";
 
-    var response = await http.GetFromJsonAsync<OmdbSearchResponse>(url);
+            string url = $"https://www.omdbapi.com/?apikey={apiKey}&s={SearchText}";
 
-    if (response?.Search != null)
-    {
-        // Only keep movies and series
-        Movies = response.Search
-            .Where(m => m.Type == "movie" || m.Type == "series")
-            .ToList();
-    }
-    else
-    {
-        ErrorMessage = "No results found.";
-    }
-}
-catch (Exception)
-{
-    ErrorMessage = "Error contacting OMDb API.";
-}
+            if (!string.IsNullOrEmpty(SelectedType))
+                url += $"&type={SelectedType}";
 
-IsLoading = false;
+
+            var response = await http.GetFromJsonAsync<OmdbSearchResponse>(url);
+
+            if (response?.Search != null)
+            {
+                Movies = response.Search.ToList();
+            }
+            else
+            {
+                ErrorMessage = "No results found.";
+                Movies = new List<MovieSummary>();
+            }
+        }
+        catch
+        {
+            ErrorMessage = "Error contacting OMDb API.";
+        }
+
+        IsLoading = false;
     }
 
     void OpenMovieDetails(string imdbID)

@@ -3,8 +3,6 @@
 @inject HttpClient Http
 @inject NavigationManager Navigation
 
-<h3>Movie Details</h3>
-
 @if (IsLoading)
 {
     <p>Loading...</p>
@@ -16,11 +14,12 @@ else if (ErrorMessage != null)
 else if (Movie != null)
 {
     <div>
-        <h2>@Movie.Title (@Movie.Year)</h2>
-        <img src="@Movie.Poster" alt="@Movie.Title" width="200" />
+        <h2>@Movie.Title</h2>
+        <img src="@Movie.Poster" alt="@Movie.Title" width="200"/>
+        <p><strong>Release date:</strong> @Movie.Released</p>
         <p><strong>Genre:</strong> @Movie.Genre</p>
         <p><strong>Director:</strong> @Movie.Director</p>
-        <p><strong>Actors:</strong> @Movie.Actors</p>
+        <p><strong>Cast:</strong> @Movie.Actors</p>
         <p><strong>Plot:</strong> @Movie.Plot</p>
         <p><strong>IMDb Rating:</strong> @Movie.imdbRating</p>
         <button @onclick="GoBack">Back</button>
