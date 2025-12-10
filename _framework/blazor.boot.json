@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "Movieapp",
   "resources": {
-    "hash": "sha256-k5vGT/Gxn5fZE2TQEl83P7EMPukO2cZRRXSzcUj2xIk=",
+    "hash": "sha256-OI0UhATTCVsLkna7MShNuvpgG4buTYINvldDU6nWRms=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-vtotCeXt2UD6oc459laJT32vBgigZ+eLoUmdeFkvYDk="
     },
@@ -49,7 +49,7 @@
       "System.Text.Json.wasm": "sha256-t7kxB26qjmY6qxS+DjESrKgOnF5UcHmMiSmpMP4lDDw=",
       "System.Text.RegularExpressions.wasm": "sha256-N5iEwt2bfvrglh1Ef1pkKFXQo82wOkhE64+4FGK7Ru8=",
       "System.Private.CoreLib.wasm": "sha256-Mltv/6nYQo2g4EjEFcCuQ7X7L+AEtXdHvZ3CjrlO9ow=",
-      "Movieapp.wasm": "sha256-d+nH88ONHK1nLN8W2GhKIzsHPSTzcotTODW6g9/v0NY="
+      "Movieapp.wasm": "sha256-IgN+VSCFGbJOy2DU/2JnD+tM/vH8UbgZYkIl/raP4bc="
     }
   },
   "cacheBootResources": true,
