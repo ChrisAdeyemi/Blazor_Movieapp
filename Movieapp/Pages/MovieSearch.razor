@@ -6,15 +6,16 @@
 
 <div class="search-container">
     <div class="filter-container">
+
         <select @bind="SelectedType" class="filter-select">
             <option value="">All</option>
             <option value="movie">Movies</option>
             <option value="series">TV Shows</option>
         </select>
     </div>
-    <div class="search-box">
-        <input @bind="SearchText" placeholder="Search movies..." class="search-input" />
-    </div>
+
+    <input @bind="SearchText" placeholder="Search movies..." class="search-input" />
+
     <button @onclick="SearchMovies" class="search-button">Search</button>
 </div>
 
@@ -30,17 +31,39 @@
     <p style="color:red">@ErrorMessage</p>
 }
 
-@if (Movies != null)
+@if (IsSearching)
 {
-    <div style="display:flex; flex-wrap:wrap;">
+    <h2>Search Results</h2>
+    <div style="display:flex; flex-wrap:wrap; gap:10px;">
+        @foreach (var movie in SearchResults)
+        {
+            <div style="width:150px; text-align:center; cursor:pointer" @onclick="() => OpenMovieDetails(movie.imdbID)">
+                <img src="@movie.Poster" width="150" />
+                <p>@movie.Title (@movie.Year)</p>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <h2>Popular Movies</h2>
+    <div style="display:flex; flex-wrap:wrap; gap:10px;">
         @foreach (var movie in Movies)
         {
-            <div style="margin:10px; width:150px;">
-                <img src="@movie.Poster" width="150"
-                     style="cursor:pointer"
-                     @onclick="() => OpenMovieDetails(movie.imdbID)" />
-
+            <div style="width:150px; text-align:center; cursor:pointer" @onclick="() => OpenMovieDetails(movie.imdbID)">
+                <img src="@movie.Poster" width="150" />
                 <p>@movie.Title (@movie.Year)</p>
+            </div>
+        }
+    </div>
+
+    <h2>Popular TV Shows</h2>
+    <div style="display:flex; flex-wrap:wrap; gap:10px;">
+        @foreach (var tv in TVShows)
+        {
+            <div style="width:150px; text-align:center; cursor:pointer" @onclick="() => OpenMovieDetails(tv.imdbID)">
+                <img src="@tv.Poster" width="150" />
+                <p>@tv.Title (@tv.Year)</p>
             </div>
         }
     </div>
@@ -49,18 +72,34 @@
 @code {
     private string SelectedType = "";
     private string SearchText = "";
+    private List<MovieSummary> SearchResults = new();
+    private bool IsSearching => !string.IsNullOrWhiteSpace(SearchText);
     private bool IsLoading = false;
     private string? ErrorMessage;
     private List<MovieSummary>? Movies;
+    private List<MovieSummary> TVShows = new();
 
     private readonly string[] popularMovies = new[]
     {
-    "Avengers","Iron Man","Black Panther","Guardians of the Galaxy","Inception","The Matrix","Interstellar","Joker","Mad Max: Fury Road","Star Wars: The Force Awakens",
-    "Spider-Man: No Way Home","Wonder Woman","Thor: Ragnarok","Captain America: Civil War","Doctor Strange","Aquaman","Deadpool","Ant-Man","Batman Begins","The Dark Knight",
-    "Frozen","Zootopia","Toy Story","Minions","Shrek","Finding Nemo","Moana","The Incredibles","Despicable Me","Coco","Aladdin","Beauty and the Beast","Inside Out","Tangled",
-    "Mulan","Raya and the Last Dragon","Kung Fu Panda","How to Train Your Dragon","The Lion King","Monsters, Inc.","Titanic","The Godfather","Forrest Gump","La La Land",
-    "Jurassic Park","Avatar","Harry Potter and the Sorcerer's Stone","The Lord of the Rings: The Fellowship of the Ring","Gladiator","Pirates of the Caribbean: The Curse of the Black Pearl"
+    "Zootopia 2","Demon Slayer: Kimetsu no Yaiba – The Movie: Infinity Castle","Chainsaw Man – The Movie: Reze Arc","Jurassic World: Rebirth",
+    "A Minecraft Movie","Mission: Impossible – The Final Reckoning","How to Train Your Dragon","The Fantastic Four: First Steps","Tron : Ares","predator: badlands",
+    "F1","Snow White ","The Hunger Games: The Ballad of Songbirds & Snakes","Captain America: Brave New World","sinners",
+    "Thunderbolts","Wicked: For Good","Avatar: Fire and Ash","Doraemon: Nobita's Art World Tales",
+    "Blue Beetle","Transformers: Rise of the Beasts","Jujutsu Kaisen: Hidden Inventory","Oppenheimer","Spider-Man: Beyond the Spider-Verse", 
+     "From the World of John Wick: Ballerina", "guardians of the galaxy vol. 3"
     };
+
+    private readonly string[] popularTVShows = new[]
+{
+    "Breaking Bad", "Stranger Things", "Game of Thrones", "The Office", "the rookie",
+    "The Mandalorian", "Loki", "The Witcher", "The Crown", "Better Call Saul","The Flash",
+    "welcome to derry", "The Simpsons", "Snowfall", "cobra kai", "from",
+    "The Boys", "tulsa king", "House of the Dragon", "Black Mirror", "Dexter",
+    "The Walking Dead", "Narcos", "Fargo", "Ozark", "Peaky Blinders"
+};
+
+   
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -79,6 +118,14 @@
 
                 if (movie != null && movie.Response != "False")
                     Movies.Add(movie);
+            }
+            foreach (var title in popularTVShows)
+            {
+                string url = $"https://www.omdbapi.com/?apikey={apiKey}&t={Uri.EscapeDataString(title)}&type=series";
+                var tv = await http.GetFromJsonAsync<MovieSummary>(url);
+
+                if (tv != null && tv.Response != "False")
+                    TVShows.Add(tv);
             }
         }
         catch
@@ -105,23 +152,21 @@
         {
             using var http = new HttpClient();
             string apiKey = "c87d23ca";
-
             string url = $"https://www.omdbapi.com/?apikey={apiKey}&s={SearchText}";
 
             if (!string.IsNullOrEmpty(SelectedType))
                 url += $"&type={SelectedType}";
 
-
             var response = await http.GetFromJsonAsync<OmdbSearchResponse>(url);
 
             if (response?.Search != null)
             {
-                Movies = response.Search.ToList();
+                SearchResults = response.Search.ToList();
             }
             else
             {
                 ErrorMessage = "No results found.";
-                Movies = new List<MovieSummary>();
+                SearchResults = new List<MovieSummary>();
             }
         }
         catch
@@ -132,8 +177,11 @@
         IsLoading = false;
     }
 
+
     void OpenMovieDetails(string imdbID)
     {
         Navigation.NavigateTo($"/movie/{imdbID}");
     }
+    
+    
 }

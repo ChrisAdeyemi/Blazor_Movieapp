@@ -5,26 +5,35 @@
 
 @if (IsLoading)
 {
-    <p>Loading...</p>
+    <p class="loading">Loading...</p>
 }
 else if (ErrorMessage != null)
 {
-    <p style="color:red">@ErrorMessage</p>
+    <p class="error-message">@ErrorMessage</p>
 }
 else if (Movie != null)
 {
-    <div>
-        <h2>@Movie.Title</h2>
-        <img src="@Movie.Poster" alt="@Movie.Title" width="200"/>
-        <p><strong>Release date:</strong> @Movie.Released</p>
-        <p><strong>Genre:</strong> @Movie.Genre</p>
-        <p><strong>Director:</strong> @Movie.Director</p>
-        <p><strong>Cast:</strong> @Movie.Actors</p>
-        <p><strong>Plot:</strong> @Movie.Plot</p>
-        <p><strong>IMDb Rating:</strong> @Movie.imdbRating</p>
-        <button @onclick="GoBack">Back</button>
+    <div class="movie-detail-wrapper">
+        <div class="movie-detail-card">
+            <img src="@Movie.Poster" alt="@Movie.Title" class="movie-poster" />
+            <div class="movie-detail-info">
+                <h1>@Movie.Title</h1>
+                <p><strong>Release Date:</strong> @Movie.Released</p>
+                <p><strong>Genre:</strong> @Movie.Genre</p>
+                @if (Movie.Type == "series")
+                {
+                    <p><strong>Total Seasons:</strong> @Movie.totalSeasons</p>
+                }
+                <p><strong>Director:</strong> @Movie.Director</p>
+                <p><strong>Cast:</strong> @Movie.Actors</p>
+                <p><strong>Plot:</strong> @Movie.Plot</p>
+                <p><strong>IMDb Rating:</strong> @Movie.imdbRating</p>
+                <button class="back-button" @onclick="GoBack">Back</button>
+            </div>
+        </div>
     </div>
 }
+
 
 @code {
     [Parameter] public string imdbID { get; set; } = "";
@@ -37,7 +46,7 @@ else if (Movie != null)
     {
         try
         {
-            string apiKey = "c87d23ca"; // Your OMDb API key
+            string apiKey = "c87d23ca";
             string url = $"https://www.omdbapi.com/?apikey={apiKey}&i={imdbID}&plot=full";
 
             Movie = await Http.GetFromJsonAsync<MovieDetails>(url);

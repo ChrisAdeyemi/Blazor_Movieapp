@@ -35,6 +35,7 @@
         public string Poster { get; set; } = "";
         public string imdbRating { get; set; } = "";
         public string imdbID { get; set; } = "";
+        public string totalSeasons { get; set; } = "";
         public string Type { get; set; } = "";
         public string Response { get; set; } = "";
         public string Error { get; set; } = "";
